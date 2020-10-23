@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>TETRIS</title>
+	<style>
+		#myCanvas {
+			background-color: white;
+			display: block;
+			padding: 0;
+			margin: 0 auto;
+		}
+	</style>
+</head>
+<body>
+
+<canvas id="myCanvas" width="615" height="915"></canvas>
+
+<script>
+	function elem_lehelyezese(elem, hova_x, hova_y) {
+		var tempMap = JSON.parse(JSON.stringify(map));
+		
+		for (var x=0; x < elem.length; ++x) {
+		
+			for (var y=0; y < elem[x].length; ++y) {
+				//console.log(elem[x][y]);
+				let palyaX = x+hova_y;
+				let palyaY = y+hova_x;
+				
+				tempMap[palyaX][palyaY] = elem[x][y];
+			}
+		}
+		
+		map = JSON.parse(JSON.stringify(tempMap));
+	}
+
+	function nem_utkozik_massal(elem, hova_x, hova_y) {
+		
+		if (hovaY >= fixedMap.length) {
+			return false;
+		}
+		
+		for (var x=0; x < elem.length; ++x) {
+		
+			for (var y=0; y < elem[x].length; ++y) {
+				//console.log(elem[x][y]);
+				let palyaX = x+hova_y;
+				let palyaY = y+hova_x;
+				
+				if (fixedMap[palyaX][palyaY] != 0) {
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
+	function palyaKinullazasa(palya) {
+		ctx.clearRect(0, 0, c.width, c.height);
+		
+		map = JSON.parse(JSON.stringify(fixedMap));
+		
+		<!-- for (var sor = 0;sor < map.length; sor++) { -->
+			
+			<!-- for (var oszlop = 0;oszlop < map[sor].length;oszlop++) { -->
+				
+				<!-- map[sor][oszlop] = fixedMap[sor][oszlop];				 -->
+			<!-- } -->
+		<!-- } -->
+	}
+	
+	function fixPalyaModositasa(kulso) {
+		//Itt pont az a lényeg, hogy hozzá kell adni a mostanihoz, nem pedig másolni
+	
+		<!-- fixedMap = JSON.parse(JSON.stringify(kulso)); -->
+		
+		for (var sor = 0;sor < map.length; sor++) {
+			
+			for (var oszlop = 0;oszlop < map[sor].length;oszlop++) {
+				
+				if (kulso[sor][oszlop] !== 0) {
+					fixedMap[sor][oszlop] = kulso[sor][oszlop];
+				}
+				
+			}
+		}		
+	}
+	
+	function rowIsFull(rowId) {
+		
+		if (fixedMap[rowId].some(x => x === 0)) {
+			return false
+		}
+		
+		<!-- for (var oszlop = 0;oszlop < fixedMap[rowId].length;oszlop++) { -->
+			<!-- if (fixedMap[rowId][oszlop] === 0) { -->
+				<!-- return false; -->
+			<!-- } -->
+		<!-- } -->
+		
+		return true;
+	}
+	
+	function fixPalyaTeljesSor() {
+		debugger;
+		for (let sor = 0;sor < fixedMap.length; sor++) {
+			if (rowIsFull(sor)) {
+				//Leveled up
+				fixedMap.splice(sor, 1);
+				fixedMap.unshift([0,0,0,0,0,0,0,0,0,0,0,0]);
+				//Törlöm a sort
+				//Leviszem eggyel az összes fölötte lévő sort
+				<!-- for (var sorFelfele=sor; sorFelfele > 0; --sorFelfele) { -->
+					<!-- for (var oszlop = 0;oszlop < map[sorFelfele].length;oszlop++) { -->
+						<!-- fixedMap[sorFelfele][oszlop] = fixedMap[sorFelfele-1][oszlop]; -->
+					<!-- } -->
+				<!-- } -->
+			}
+		}
+		
+	}
+	
+	function palyaKirajzolasa() {
+		for (var sor = 0;sor < map.length; sor++) {
+			for (var oszlop = 0;oszlop < map[sor].length;oszlop++) {
+				ctx.beginPath();
+				
+				let x_s = sizeOfBlocks*oszlop+5;
+				let y_s = sizeOfBlocks*sor+5;
+				
+				if (map[sor][oszlop] === 1) {
+					ctx.lineWidth = "3";
+					ctx.strokeStyle = "#5bd47b";
+					
+				} else {
+					ctx.lineWidth = "2";
+					ctx.strokeStyle = "grey";
+					
+					
+				}
+				
+				ctx.rect(x_s+5, y_s+5, sizeOfBlocks-5, sizeOfBlocks-5);
+				
+				
+				ctx.stroke();
+			}
+		}
+	}
+	
+	function vege() {
+		ctx.font = '70px Arial';
+		ctx.textBaseline = 'middle'; 
+		ctx.textAlign = "center";
+		ctx.fillText("Vége a játéknak!", c.width/2, c.height/2);
+	}
+
+	var map = 
+		[
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0]];
+
+	var fixedMap = JSON.parse(JSON.stringify(map));
+	
+	var sizeOfBlocks = 50;
+	
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	var shapes = {
+	hosszukas: 
+		[
+			[0,0,0,0],
+			[1,1,1,1],
+			[0,0,0,0],
+			[0,0,0,0]
+		],
+	negyzet: 
+		[
+			[0,0,0,0],
+			[0,1,1,0],
+			[0,1,1,0],
+			[0,0,0,0]
+		],
+	valasztott: [],
+	valasztottId: 0
+	};
+	
+	const sizeOfShapes = 2;
+	
+	shapes.valaszott = shapes.hosszukas;
+	
+	palyaKirajzolasa();
+	
+	//Hová helyezze el a pályán
+	var hovaX = Math.floor(Math.random() * (map[0].length+1-shapes.valaszott[0].length));
+	var hovaY = 0;
+	
+	function doKeyDown(e) {
+		switch (e.key) {
+			//Bal
+			case "ArrowLeft":
+				if (hovaX - 1 > -1) 
+				{
+					hovaX -= 1;
+				}
+				break;
+			//Jobb
+			case "ArrowRight":
+				if (hovaX + 1 < map[0].length - shapes.valaszott[0].length + 1) {
+					hovaX += 1;
+				}
+				break;
+			case "ArrowDown":
+				belso += 10;
+				break;
+			case "Escape":
+				clearInterval(ciklus);
+				break;
+			default:
+				break;
+		}
+	}
+	
+	window.addEventListener("keydown", doKeyDown, true);
+	
+	var belso = 0;
+	var ciklus = setInterval(function() {	
+		
+		//Egy ütemmel el kell tolni!
+		if (nem_utkozik_massal(shapes.valaszott, hovaX, hovaY)) {
+			palyaKinullazasa(map);
+			
+			elem_lehelyezese(shapes.valaszott, hovaX, hovaY);
+			
+			palyaKirajzolasa();
+			
+			belso += 1;
+			if (belso > 10) {
+				hovaY++;
+				belso = 0;
+			}
+			
+			
+		} else {
+			//TODO: innét folytatni
+			
+			//Ha a tetején van akkor legyen vége
+			if (hovaY === 0) {
+				clearInterval(ciklus);
+				vege();
+			}
+			
+			fixPalyaModositasa(map);
+			
+			//Ha egy sor összejött, akkor azt a sort vegye ki, és minden felette lévő sort süllyesszen eggyel lejjebb
+			
+			fixPalyaTeljesSor();
+			
+			//TODO: innét folytasd
+			//A probléma az, hogy mivel négyzet alakú
+			//Ezért az ütközésvizsgálatnál is figyelembe kéne ezt venni
+			let chosenShape = Math.floor(Math.random() * sizeOfShapes);
+			shapes.valasztottId = chosenShape;
+			switch (shapes.valasztottId) {
+				case 0:
+					shapes.valasztott = shapes.hosszukas;
+					break;
+				case 1:
+					shapes.valasztott = shapes.negyzet;
+					break;
+			}			
+			
+			//console.log(fixedMap);
+			
+			//Hová helyezze el a pályán
+			hovaX = Math.floor(Math.random() * (map[0].length+1-shapes.valasztott[0].length));
+			hovaY = 0;
+			
+		}}, 100);
+		
+		
+</script>
+
+</body>
+</html>
