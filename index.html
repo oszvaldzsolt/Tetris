@@ -34,19 +34,22 @@
 	}
 
 	function nem_utkozik_massal(elem, hova_x, hova_y) {
-		
-		if (hovaY >= fixedMap.length) {
+		//Ez okozza a vesztét
+		//Amikor az alján van, nem haladja meg
+		//a kiterjedését is figyelembe kell venni
+
+		if (hovaY + elem.length >= fixedMap.length) {
 			return false;
 		}
 		
-		for (var x=0; x < elem.length; ++x) {
+		for (var y=0; y < elem.length; ++y) {
 		
-			for (var y=0; y < elem[x].length; ++y) {
+			for (var x=0; x < elem[y].length; ++x) {
 				//console.log(elem[x][y]);
-				let palyaX = x+hova_y;
-				let palyaY = y+hova_x;
+				let palyaY = y+hova_y;
+				let palyaX = x+hova_x;
 				
-				if (fixedMap[palyaX][palyaY] != 0) {
+				if (fixedMap[palyaY][palyaX] != 0) {
 					return false;
 				}
 			}
@@ -59,20 +62,12 @@
 		ctx.clearRect(0, 0, c.width, c.height);
 		
 		map = JSON.parse(JSON.stringify(fixedMap));
-		
-		<!-- for (var sor = 0;sor < map.length; sor++) { -->
-			
-			<!-- for (var oszlop = 0;oszlop < map[sor].length;oszlop++) { -->
-				
-				<!-- map[sor][oszlop] = fixedMap[sor][oszlop];				 -->
-			<!-- } -->
-		<!-- } -->
 	}
 	
 	function fixPalyaModositasa(kulso) {
 		//Itt pont az a lényeg, hogy hozzá kell adni a mostanihoz, nem pedig másolni
 	
-		<!-- fixedMap = JSON.parse(JSON.stringify(kulso)); -->
+		// <!-- fixedMap = JSON.parse(JSON.stringify(kulso)); -->
 		
 		for (var sor = 0;sor < map.length; sor++) {
 			
@@ -92,12 +87,6 @@
 			return false
 		}
 		
-		<!-- for (var oszlop = 0;oszlop < fixedMap[rowId].length;oszlop++) { -->
-			<!-- if (fixedMap[rowId][oszlop] === 0) { -->
-				<!-- return false; -->
-			<!-- } -->
-		<!-- } -->
-		
 		return true;
 	}
 	
@@ -108,13 +97,6 @@
 				//Leveled up
 				fixedMap.splice(sor, 1);
 				fixedMap.unshift([0,0,0,0,0,0,0,0,0,0,0,0]);
-				//Törlöm a sort
-				//Leviszem eggyel az összes fölötte lévő sort
-				<!-- for (var sorFelfele=sor; sorFelfele > 0; --sorFelfele) { -->
-					<!-- for (var oszlop = 0;oszlop < map[sorFelfele].length;oszlop++) { -->
-						<!-- fixedMap[sorFelfele][oszlop] = fixedMap[sorFelfele-1][oszlop]; -->
-					<!-- } -->
-				<!-- } -->
 			}
 		}
 		
