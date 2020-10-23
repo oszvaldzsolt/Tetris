@@ -255,8 +255,6 @@
 				hovaY++;
 				belso = 0;
 			}
-			
-			
 		} else {
 			//TODO: innét folytatni
 			
@@ -264,6 +262,7 @@
 			if (hovaY === 0) {
 				clearInterval(ciklus);
 				vege();
+				
 			}
 			
 			fixPalyaModositasa(map);
@@ -290,6 +289,7 @@
 			
 			//Hová helyezze el a pályán
 			hovaX = Math.floor(Math.random() * (map[0].length+1-shapes.valasztott[0].length));
+			
 			hovaY = 0;
 			
 		}}, 100);
