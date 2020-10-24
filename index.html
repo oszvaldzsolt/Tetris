@@ -37,8 +37,8 @@
 		//Ez okozza a vesztét
 		//Amikor az alján van, nem haladja meg
 		//a kiterjedését is figyelembe kell venni
-
-		if (hovaY + elem.length >= fixedMap.length) {
+		
+		if (hovaY + elem.length -1 >= fixedMap.length) {
 			return false;
 		}
 		
@@ -91,6 +91,57 @@
 		amputated = amputated[0].map((_, oszlopIndex) => amputated.map(row => row[oszlopIndex]));
 
 		return amputated;
+	}
+
+	function tellFreeLines(elem, irany) {
+            let mennyi = 0;
+            switch (irany) {
+                case "Up":
+                    for (var i=0;i<elem.length;i++) {
+                        if (elem[i].every(oszlop => oszlop === 0)) {
+                            mennyi += 1;
+                        } else {
+                            i = elem.length;
+                        }
+                    }
+                    break;
+                case "Down":
+                    for (var i=elem.length-1; i > 0;i--) {
+                        if (elem[i].every(oszlop => oszlop === 0)) {
+                            mennyi += 1;
+                        } else {
+                            i = 0;
+                        }
+                    }
+                    break;
+                case "Left":
+                    let forgatottLeft =  elem[0].map((_,oszlopIdx) => elem.map(sor => sor[oszlopIdx]));
+
+                    for (var i=0; i<elem[0].length; i++) {
+                        let kivalasztottOszlop = forgatottLeft[i];
+
+                        if (kivalasztottOszlop.every(sor => sor === 0)) {
+                            mennyi += 1;
+                        } else {
+                            i = elem[0].length;
+                        }
+                    }
+                    break;
+                case "Right":
+                    let forgatottRight =  elem[0].map((_,oszlopIdx) => elem.map(sor => sor[oszlopIdx]));
+                    for (var i = elem[0].length-1; i > 0; i--) {
+                        let kivalasztottOszlop = forgatottRight[i];
+
+                        if (kivalasztottOszlop.every(sor => sor === 0)) {
+                            mennyi += 1;
+                        } else {
+                            i = 0;
+                        }
+                    }
+                    break;
+            }
+
+		return mennyi;
 	}
 	
 	function rowIsFull(rowId) {
@@ -197,16 +248,20 @@
 	
 	const sizeOfShapes = 2;
 	
-	shapes.valaszott = shapes.hosszukas;
+	shapes.valasztott = shapes.hosszukas;
 	
 	palyaKirajzolasa();
 	
 	//Hová helyezze el a pályán
-	var hovaX = Math.floor(Math.random() * (map[0].length+1-shapes.valaszott[0].length));
+	var hovaX = Math.floor(Math.random() * (map[0].length+1-shapes.valasztott[0].length));
 	var hovaY = 0;
 	
 	function doKeyDown(e) {
 		switch (e.key) {
+			case "ArrowUp":
+				shapes.valasztott = 
+					shapes.valasztott[0].map((_, oszlopIndex) => shapes.valasztott.map(row => row[oszlopIndex]).reverse());
+				break;
 			//Bal
 			case "ArrowLeft":
 				if (hovaX - 1 > -1) 
@@ -216,7 +271,7 @@
 				break;
 			//Jobb
 			case "ArrowRight":
-				if (hovaX + 1 < map[0].length - shapes.valaszott[0].length + 1) {
+				if (hovaX + 1 < map[0].length - shapes.valasztott[0].length + 1) {
 					hovaX += 1;
 				}
 				break;
@@ -237,10 +292,10 @@
 	var ciklus = setInterval(function() {	
 		
 		//Egy ütemmel el kell tolni!
-		if (nem_utkozik_massal(shapes.valaszott, hovaX, hovaY)) {
+		if (nem_utkozik_massal(shapes.valasztott, hovaX, hovaY)) {
 			palyaKinullazasa(map);
 			
-			elem_lehelyezese(shapes.valaszott, hovaX, hovaY);
+			elem_lehelyezese(shapes.valasztott, hovaX, hovaY);
 			
 			palyaKirajzolasa();
 			

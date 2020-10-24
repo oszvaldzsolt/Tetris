@@ -4,15 +4,19 @@
     <script>
         var ketDelem =
 		[
-			[0,0,1,0],
-			[0,0,1,0],
-			[0,0,1,0],
-			[1,1,1,0]
+			[0,0,0,0],
+			[0,1,1,0],
+			[0,1,1,0],
+			[0,0,0,0]
 		];
 
-        let amputaltElem = amputateArray(ketDelem);
+        //let amputaltElem = amputateArray(ketDelem);
         console.log(ketDelem);
-        console.log(amputaltElem);
+        console.log("Szabad sorok felülről: " + tellFreeLines(ketDelem, "Up"));
+        console.log("Szabad sorok jobbról: " + tellFreeLines(ketDelem, "Right"));
+        console.log("Szabad sorok alulról: " + tellFreeLines(ketDelem, "Down"));
+        console.log("Szabad sorok balról: " + tellFreeLines(ketDelem, "Left"));
+        //console.log(amputaltElem);
 
         function amputateArray(elem) {
             debugger;
@@ -25,6 +29,57 @@
 
             return amputated;
         }
+
+        function tellFreeLines(elem, irany) {
+            let mennyi = 0;
+            switch (irany) {
+                case "Up":
+                    for (var i=0;i<elem.length;i++) {
+                        if (elem[i].every(oszlop => oszlop === 0)) {
+                            mennyi += 1;
+                        } else {
+                            i = elem.length;
+                        }
+                    }
+                    break;
+                case "Down":
+                    for (var i=elem.length-1; i > 0;i--) {
+                        if (elem[i].every(oszlop => oszlop === 0)) {
+                            mennyi += 1;
+                        } else {
+                            i = 0;
+                        }
+                    }
+                    break;
+                case "Left":
+                    let forgatottLeft =  elem[0].map((_,oszlopIdx) => elem.map(sor => sor[oszlopIdx]));
+
+                    for (var i=0; i<elem[0].length; i++) {
+                        let kivalasztottOszlop = forgatottLeft[i];
+
+                        if (kivalasztottOszlop.every(sor => sor === 0)) {
+                            mennyi += 1;
+                        } else {
+                            i = elem[0].length;
+                        }
+                    }
+                    break;
+                case "Right":
+                    let forgatottRight =  elem[0].map((_,oszlopIdx) => elem.map(sor => sor[oszlopIdx]));
+                    for (var i = elem[0].length-1; i > 0; i--) {
+                        let kivalasztottOszlop = forgatottRight[i];
+
+                        if (kivalasztottOszlop.every(sor => sor === 0)) {
+                            mennyi += 1;
+                        } else {
+                            i = 0;
+                        }
+                    }
+                    break;
+            }
+
+		return mennyi;
+	}
     </script>
 </body>
 </html>
