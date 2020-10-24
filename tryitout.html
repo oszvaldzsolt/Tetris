@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <script>
+        var ketDelem =
+		[
+			[0,0,1,0],
+			[0,0,1,0],
+			[0,0,1,0],
+			[1,1,1,0]
+		];
+
+        let amputaltElem = amputateArray(ketDelem);
+        console.log(ketDelem);
+        console.log(amputaltElem);
+
+        function amputateArray(elem) {
+            debugger;
+            let amputated = JSON.parse(JSON.stringify(elem));
+
+            amputated = amputated.filter(sor => !sor.every(x => x === 0));
+            amputated = amputated[0].map((_, oszlopIndex) => amputated.map(row => row[oszlopIndex]));
+            amputated = amputated.filter(sor => !sor.every(x => x === 0));
+            amputated = amputated[0].map((_, oszlopIndex) => amputated.map(row => row[oszlopIndex]));
+
+            return amputated;
+        }
+    </script>
+</body>
+</html>
