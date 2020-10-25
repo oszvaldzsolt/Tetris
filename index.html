@@ -38,7 +38,9 @@
 		//Amikor az alján van, nem haladja meg
 		//a kiterjedését is figyelembe kell venni
 		
-		if (hovaY + elem.length -1 >= fixedMap.length) {
+		if (hova_y + elem.length - tellFreeLines(elem, "Down") > fixedMap.length) {
+			console.log("{1} > {2}".replace("{1}",hova_y + elem.length - tellFreeLines(elem, "Down"))
+			.replace("{2}", fixedMap.length))
 			return false;
 		}
 		
@@ -154,7 +156,6 @@
 	}
 	
 	function fixPalyaTeljesSor() {
-		debugger;
 		for (let sor = 0;sor < fixedMap.length; sor++) {
 			if (rowIsFull(sor)) {
 				//Leveled up
@@ -176,7 +177,10 @@
 				if (map[sor][oszlop] === 1) {
 					ctx.lineWidth = "3";
 					ctx.strokeStyle = "#5bd47b";
-					
+				}
+				else if (map[sor][oszlop] === 2) {
+					ctx.lineWidth = "3";
+					ctx.strokeStyle = "#ce76de";
 				} else {
 					ctx.lineWidth = "2";
 					ctx.strokeStyle = "grey";
@@ -248,7 +252,7 @@
 	
 	const sizeOfShapes = 2;
 	
-	shapes.valasztott = shapes.hosszukas;
+	shapes.valasztott = JSON.parse(JSON.stringify(shapes.hosszukas));
 	
 	palyaKirajzolasa();
 	
@@ -259,19 +263,23 @@
 	function doKeyDown(e) {
 		switch (e.key) {
 			case "ArrowUp":
-				shapes.valasztott = 
-					shapes.valasztott[0].map((_, oszlopIndex) => shapes.valasztott.map(row => row[oszlopIndex]).reverse());
+				
+				shapes.valasztott = shapes.valasztott.map((row, i) =>
+					row.map((val, j) => shapes.valasztott[shapes.valasztott.length - 1 - j][i])
+				);
+
 				break;
 			//Bal
 			case "ArrowLeft":
-				if (hovaX - 1 > -1) 
+				if (hovaX - 1 + tellFreeLines(shapes.valasztott, "Left") >= 0) 
 				{
 					hovaX -= 1;
 				}
 				break;
 			//Jobb
 			case "ArrowRight":
-				if (hovaX + 1 < map[0].length - shapes.valasztott[0].length + 1) {
+				
+				if (hovaX + 1 + shapes.valasztott[0].length - tellFreeLines(shapes.valasztott, "Right") <= map[0].length) {
 					hovaX += 1;
 				}
 				break;
@@ -288,23 +296,40 @@
 	
 	window.addEventListener("keydown", doKeyDown, true);
 	
+	var up = 0; left = 0;
+	var doNothingForFirstNLine = tellFreeLines(shapes.valasztott, "Up");
 	var belso = 0;
-	var ciklus = setInterval(function() {	
+	var ciklus = setInterval(function() {
+
+		//This is neccessary, because we will amputate the matrix,
+		//meaning, that we will remove all empty lines around the shape of the matrix
 		
-		//Egy ütemmel el kell tolni!
-		if (nem_utkozik_massal(shapes.valasztott, hovaX, hovaY)) {
+		if (doNothingForFirstNLine <= 0) {
+			//This tells us how many blank lines are there above our shape in the matrix
+			up = tellFreeLines(shapes.valasztott, "Up");
+		}
+		
+		//This tells us how many empty lines are there left to our shape in the matrix
+		left = tellFreeLines(shapes.valasztott, "Left");
+
+		//It needs to be shifted with one beat/one time
+		if (nem_utkozik_massal(amputateArray(shapes.valasztott), hovaX + left, hovaY + up)) {
 			palyaKinullazasa(map);
 			
-			elem_lehelyezese(shapes.valasztott, hovaX, hovaY);
+			elem_lehelyezese(amputateArray(shapes.valasztott), hovaX + left, hovaY + up);
 			
 			palyaKirajzolasa();
 			
 			belso += 1;
 			if (belso > 10) {
-				hovaY++;
+				if (doNothingForFirstNLine <= 0) {
+					hovaY++;
+				} else {
+					doNothingForFirstNLine -= 1;
+				}
+
 				belso = 0;
 			}
-			
 			
 		} else {
 			//TODO: innét folytatni
@@ -328,13 +353,16 @@
 			shapes.valasztottId = chosenShape;
 			switch (shapes.valasztottId) {
 				case 0:
-					shapes.valasztott = shapes.hosszukas;
+					shapes.valasztott = JSON.parse(JSON.stringify(shapes.hosszukas));
 					break;
 				case 1:
-					shapes.valasztott = shapes.negyzet;
+					shapes.valasztott = JSON.parse(JSON.stringify(shapes.negyzet));
 					break;
-			}			
-			
+			}
+
+			doNothingForFirstNLine = tellFreeLines(shapes.valasztott, "Up");	
+			up = 0; left = 0;
+
 			//console.log(fixedMap);
 			
 			//Hová helyezze el a pályán
