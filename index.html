@@ -26,7 +26,9 @@
 				let palyaX = x+hova_y;
 				let palyaY = y+hova_x;
 				
-				tempMap[palyaX][palyaY] = elem[x][y];
+				if (elem[x][y] !== 0) {
+					tempMap[palyaX][palyaY] = elem[x][y];
+				}
 			}
 		}
 		
@@ -65,7 +67,7 @@
 				let palyaY = y+hova_y;
 				let palyaX = x+hova_x;
 				
-				if (fixedMap[palyaY][palyaX] != 0) {
+				if (fixedMap[palyaY][palyaX] != 0 && elem[y][x] != 0) {
 					return false;
 				}
 			}
@@ -260,11 +262,17 @@
 			[0,1,1,0],
 			[0,0,0,0]
 		],
+	hosszl: 
+		[
+			[0,0,1,0],
+			[0,0,1,0],
+			[0,0,1,0],
+			[0,1,1,0]
+		],
 	valasztott: [],
-	valasztottId: 0
+	valasztottId: 0,
+	numberOfShapes: 3
 	};
-	
-	const sizeOfShapes = 2;
 	
 	shapes.valasztott = JSON.parse(JSON.stringify(shapes.hosszukas));
 	
@@ -386,7 +394,7 @@
 			//TODO: innét folytasd
 			//A probléma az, hogy mivel négyzet alakú
 			//Ezért az ütközésvizsgálatnál is figyelembe kéne ezt venni
-			let chosenShape = Math.floor(Math.random() * sizeOfShapes);
+			let chosenShape = Math.floor(Math.random() * shapes.numberOfShapes);
 			shapes.valasztottId = chosenShape;
 			switch (shapes.valasztottId) {
 				case 0:
@@ -395,6 +403,8 @@
 				case 1:
 					shapes.valasztott = JSON.parse(JSON.stringify(shapes.negyzet));
 					break;
+				case 2:
+					shapes.valasztott = JSON.parse(JSON.stringify(shapes.hosszl));
 			}
 
 			doNothingForFirstNLine = tellFreeLines(shapes.valasztott, "Up");	
