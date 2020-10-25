@@ -32,6 +32,22 @@
 		
 		map = JSON.parse(JSON.stringify(tempMap));
 	}
+	
+	function does_not_collide(shape, whereTo_x, whereTo_y, dontAdd) {
+
+		if (dontAdd !== undefined) {
+			let newShape = amputateArray(shape);	
+			return nem_utkozik_massal(newShape, whereTo_x, whereTo_y);
+		}
+
+		let newShape = amputateArray(shape);
+
+		let left = tellFreeLines(shape, "Left");
+		let up = tellFreeLines(shape, "Up");
+	
+
+		return nem_utkozik_massal(newShape, whereTo_x + left, whereTo_y + up);
+	}
 
 	function nem_utkozik_massal(elem, hova_x, hova_y) {
 		//Ez okozza a vesztét
@@ -39,8 +55,6 @@
 		//a kiterjedését is figyelembe kell venni
 		
 		if (hova_y + elem.length - tellFreeLines(elem, "Down") > fixedMap.length) {
-			console.log("{1} > {2}".replace("{1}",hova_y + elem.length - tellFreeLines(elem, "Down"))
-			.replace("{2}", fixedMap.length))
 			return false;
 		}
 		
@@ -263,24 +277,45 @@
 	function doKeyDown(e) {
 		switch (e.key) {
 			case "ArrowUp":
-				
-				shapes.valasztott = shapes.valasztott.map((row, i) =>
+				var ujShape = shapes.valasztott.map((row, i) =>
 					row.map((val, j) => shapes.valasztott[shapes.valasztott.length - 1 - j][i])
 				);
 
+				//It is not allowed to let the shape stick out
+				//All sides should be take into cosideration
+				//Right side
+				if (!((hovaX + ujShape[0].length - tellFreeLines(ujShape, "Right") > map[0].length) &&
+					((hovaX + tellFreeLines(ujShape, "Left")) < 0) &&
+					((hovaY + ujShape.length - tellFreeLines(ujShape, "Down")) > map.length)))
+				{
+					if (does_not_collide(ujShape, hovaX, hovaY)) {
+						shapes.valasztott = ujShape;
+					}	
+				}
 				break;
 			//Bal
 			case "ArrowLeft":
 				if (hovaX - 1 + tellFreeLines(shapes.valasztott, "Left") >= 0) 
 				{
-					hovaX -= 1;
+					//If the shape would collapse with another shape
+					//this step shouldn't be made
+					if (does_not_collide(shapes.valasztott, hovaX - 1, hovaY)) {
+						hovaX -= 1;
+					}
+
 				}
 				break;
 			//Jobb
 			case "ArrowRight":
-				
 				if (hovaX + 1 + shapes.valasztott[0].length - tellFreeLines(shapes.valasztott, "Right") <= map[0].length) {
-					hovaX += 1;
+					
+					// + shapes.valasztott[0].length - tellFreeLines(shapes.valasztott, "Right") 
+					//Ez azért kell bele, mert úgy is amputálod!
+
+					if (does_not_collide(shapes.valasztott, hovaX + 1, hovaY)) {
+						hovaX += 1;
+					}
+
 				}
 				break;
 			case "ArrowDown":
@@ -295,7 +330,8 @@
 	}
 	
 	window.addEventListener("keydown", doKeyDown, true);
-	
+	window.focus();
+
 	var up = 0; left = 0;
 	var doNothingForFirstNLine = tellFreeLines(shapes.valasztott, "Up");
 	var belso = 0;
@@ -313,7 +349,8 @@
 		left = tellFreeLines(shapes.valasztott, "Left");
 
 		//It needs to be shifted with one beat/one time
-		if (nem_utkozik_massal(amputateArray(shapes.valasztott), hovaX + left, hovaY + up)) {
+		//if (nem_utkozik_massal(amputateArray(shapes.valasztott), hovaX + left, hovaY + up)) {
+		if (does_not_collide(shapes.valasztott, hovaX + left, hovaY + up, true)) {
 			palyaKinullazasa(map);
 			
 			elem_lehelyezese(amputateArray(shapes.valasztott), hovaX + left, hovaY + up);
